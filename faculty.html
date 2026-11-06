@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XYZ College SMS | Faculty Portal</title>
+  
+  <!-- Member A's Styles & Tailwind for Profile Component -->
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Member C's Database Client (Modules) & Globals -->
+  <script type="module" src="./supabaseClient.js"></script>
+  
+  <!-- Member A's Profile Component logic -->
+  <script src="profile.js"></script>
+
+  <style>
+    /* Scoped Portal Tab & Table Styles */
+    .portal-container { max-width: 1280px; margin: 2rem auto; padding: 0 1.5rem; }
+    .portal-tabs { display: flex; gap: 0.5rem; border-bottom: 2px solid var(--border-color); margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .tab-btn { background: transparent; border: none; padding: 0.85rem 1.4rem; font-family: var(--font-heading); font-size: 1rem; font-weight: bold; color: var(--text-muted); cursor: pointer; border-bottom: 4px solid transparent; transition: all 0.2s ease; }
+    .tab-btn:hover { color: var(--primary-navy); }
+    .tab-btn.active { color: var(--primary-navy); border-bottom-color: var(--accent-gold); background-color: var(--surface-white); border-radius: var(--radius) var(--radius) 0 0; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem; }
+    .badge { display: inline-block; padding: 0.25rem 0.65rem; font-size: 0.78rem; font-weight: 600; border-radius: 4px; }
+    .badge-navy { background: var(--primary-navy); color: white; }
+    .badge-burgundy { background: var(--secondary-burgundy); color: white; }
+    .badge-gold { background: var(--accent-gold); color: #1A202C; }
+    .badge-success { background: #2F855A; color: white; }
+    .window-closed-banner { background-color: #FFF5F5; border: 1px solid var(--secondary-burgundy); border-left: 6px solid var(--secondary-burgundy); color: var(--secondary-burgundy); padding: 1.25rem; border-radius: var(--radius); margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
+    .window-open-banner { background-color: #FEFCBF; border: 1px solid var(--accent-gold); border-left: 6px solid var(--accent-gold); color: #744210; padding: 1rem 1.25rem; border-radius: var(--radius); margin-bottom: 1rem; font-weight: 600; }
+    .table-responsive { overflow-x: auto; }
+    .academic-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    .academic-table th { background-color: var(--primary-navy); color: white; font-family: var(--font-heading); text-align: left; padding: 0.75rem 1rem; }
+    .academic-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); color: var(--text-dark); }
+    .academic-table tr:hover td { background-color: #EDF2F7; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <header class="academic-header">
+    <div class="college-logo-brand">
+      <div class="academic-crest-icon">XYZ</div>
+      <span>XYZ College · Faculty Operations</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <span id="header-user-info" class="text-sm font-semibold">Loading...</span>
+      <button id="logout-btn" class="btn-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.85rem;">Logout</button>
+    </div>
+  </header>
+
+  <main class="portal-container">
+    <!-- Faculty Dossier Summary -->
+    <div class="academic-card">
+      <div class="academic-card-header flex justify-between items-center">
+        <h3 class="academic-card-title">Faculty Academic Dossier</h3>
+        <span class="badge badge-gold" id="fac-additional-pos">None</span>
+      </div>
+      <div class="grid-4">
+        <div><div class="text-xs text-slate-500 font-bold uppercase">Name & Designation</div><div class="font-bold text-lg text-slate-800 mt-1" id="fac-name-desig">—</div></div>
+        <div><div class="text-xs text-slate-500 font-bold uppercase">Department</div><div class="font-bold mt-1 text-slate-800" id="fac-dept">—</div></div>
+        <div><div class="text-xs text-slate-500 font-bold uppercase">Education History</div><div class="text-sm mt-1 text-slate-700" id="fac-edu">—</div></div>
+        <div><div class="text-xs text-slate-500 font-bold uppercase">Research Topics</div><div class="text-sm mt-1 text-slate-700" id="fac-research">—</div></div>
+      </div>
+    </div>
+
+    <!-- Portal Tabs -->
+    <div class="portal-tabs">
+      <button class="tab-btn active" data-target="fac-attendance-tab">Daily Attendance</button>
+      <button class="tab-btn" data-target="fac-marks-tab">Exam Marks Entry</button>
+      <button class="tab-btn" data-target="fac-course-app-tab">Apply to Teach</button>
+      <button class="tab-btn" data-target="fac-leaves-tab">Leave Approvals</button>
+      <button class="tab-btn" data-target="fac-profile-tab">My Profile</button>
+    </div>
+
+    <!-- TAB 1: Attendance Entry -->
+    <section id="fac-attendance-tab" class="tab-panel active">
+      <div class="academic-card">
+        <div class="academic-card-header flex justify-between items-center flex-wrap gap-4">
+          <h3 class="academic-card-title">Course Roster — Daily Attendance</h3>
+          <div class="flex gap-2">
+            <select id="fac-att-course-select" class="form-select w-auto"></select>
+            <input type="date" id="fac-att-date" class="form-input w-auto" required />
+          </div>
+        </div>
+        <form id="fac-attendance-form">
+          <div class="table-responsive">
+            <table class="academic-table">
+              <thead>
+                <tr><th>Student ID</th><th>Name</th><th>Program</th><th>Attendance Status</th></tr>
+              </thead>
+              <tbody id="fac-attendance-roster-tbody">
+                <tr><td colspan="4" class="text-center py-4">Select a course to load students...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="flex justify-between items-center mt-4">
+            <span id="fac-att-feedback" class="font-semibold text-emerald-600"></span>
+            <button type="submit" class="btn-primary">Commit Attendance</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- TAB 2: Exam Marks Entry -->
+    <section id="fac-marks-tab" class="tab-panel">
+      <div class="academic-card">
+        <div class="academic-card-header flex justify-between items-center flex-wrap gap-4">
+          <h3 class="academic-card-title">Student Grade & Marks Entry</h3>
+          <div class="flex gap-2">
+            <select id="fac-marks-course-select" class="form-select w-auto"></select>
+            <select id="fac-marks-exam-select" class="form-select w-auto">
+              <option value="internal">Internal Exam (Max 20)</option>
+              <option value="mid_term">Mid-Term Exam (Max 30)</option>
+              <option value="final">Final Exam (Max 50)</option>
+            </select>
+          </div>
+        </div>
+        <form id="fac-marks-form">
+          <div class="table-responsive">
+            <table class="academic-table">
+              <thead>
+                <tr><th>Student ID</th><th>Name</th><th>Program</th><th>Marks Obtained</th></tr>
+              </thead>
+              <tbody id="fac-marks-roster-tbody">
+                <tr><td colspan="4" class="text-center py-4">Select a course and exam type...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="flex justify-between items-center mt-4">
+            <span id="fac-marks-feedback" class="font-semibold text-emerald-600"></span>
+            <button type="submit" class="btn-primary">Publish Marks</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- TAB 3: Conditional Apply to Teach Courses -->
+    <section id="fac-course-app-tab" class="tab-panel">
+      <div id="fac-app-window-banner"></div>
+      <div id="fac-app-form-wrapper" class="academic-card" style="display: none;">
+        <div class="academic-card-header flex justify-between items-center">
+          <h3 class="academic-card-title">Apply to Teach Courses</h3>
+          <span class="badge badge-success">Window OPEN</span>
+        </div>
+        <div class="table-responsive">
+          <table class="academic-table">
+            <thead>
+              <tr><th>Course Code</th><th>Title</th><th>Department</th><th>Action</th></tr>
+            </thead>
+            <tbody id="fac-course-app-tbody">
+              <tr><td colspan="4" class="text-center py-4">Loading catalog...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Student Leave Management -->
+    <section id="fac-leaves-tab" class="tab-panel">
+      <div class="academic-card">
+        <div class="academic-card-header flex justify-between items-center">
+          <h3 class="academic-card-title">Student Leave Applications</h3>
+          <span class="badge badge-burgundy">Action Required</span>
+        </div>
+        <div class="table-responsive">
+          <table class="academic-table">
+            <thead>
+              <tr><th>Student Name</th><th>Dates</th><th>Reason</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody id="fac-leaves-tbody">
+              <tr><td colspan="5" class="text-center py-4">Loading applications...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: Member A Unified Profile Mount -->
+    <section id="fac-profile-tab" class="tab-panel">
+      <div id="profile-container"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import * as api from './supabaseClient.js';
+
+    let currentFaculty = null;
+
+    // Default date picker to today
+    document.getElementById('fac-att-date').value = new Date().toISOString().split('T')[0];
+
+    // Tab Navigation
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.target).classList.add('active');
+      });
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await api.logout();
+    });
+
+    async function initFacultyPortal() {
+      currentFaculty = await api.requireRole('faculty');
+      if (!currentFaculty) return;
+
+      window.currentUser = currentFaculty;
+
+      // Populate Header & Dossier
+      document.getElementById('header-user-info').textContent = `${currentFaculty.name} (${currentFaculty.designation})`;
+      document.getElementById('fac-name-desig').textContent = `${currentFaculty.name} — ${currentFaculty.designation}`;
+      document.getElementById('fac-dept').textContent = currentFaculty.department || '—';
+      document.getElementById('fac-additional-pos').textContent = Array.isArray(currentFaculty.additional_positions) ? currentFaculty.additional_positions.join(', ') : 'None';
+      
+      // Parse Education History JSON if available
+      let eduHtml = '—';
+      if (Array.isArray(currentFaculty.education_history) && currentFaculty.education_history.length > 0) {
+        eduHtml = currentFaculty.education_history.map(e => `${e.degree} (${e.institution}, ${e.year})`).join('<br>');
+      }
+      document.getElementById('fac-edu').innerHTML = eduHtml;
+      document.getElementById('fac-research').textContent = currentFaculty.research_topics || '—';
+
+      // Mount Member A Profile Component
+      if (typeof window.renderProfileView === 'function') {
+        window.renderProfileView(currentFaculty, 'profile-container');
+      }
+
+      await Promise.all([
+        loadFacultyCoursesAndRosters(),
+        loadTeachingApplicationWindow(),
+        loadLeaveApplications()
+      ]);
+    }
+
+    async function loadFacultyCoursesAndRosters() {
+      // Member C's getMyCourses() returns exactly what the faculty teaches/applied for
+      const assignedCourses = await api.getMyCourses() || [];
+      const attSelect = document.getElementById('fac-att-course-select');
+      const marksSelect = document.getElementById('fac-marks-course-select');
+
+      const optionsHtml = assignedCourses.map(c => `<option value="${c.id}">${c.id} — ${c.title}</option>`).join('');
+      attSelect.innerHTML = optionsHtml || `<option value="">No Assigned Courses</option>`;
+      marksSelect.innerHTML = optionsHtml || `<option value="">No Assigned Courses</option>`;
+
+      attSelect.addEventListener('change', renderAttendanceRoster);
+      marksSelect.addEventListener('change', renderMarksRoster);
+      document.getElementById('fac-marks-exam-select').addEventListener('change', renderMarksRoster);
+
+      if (assignedCourses.length > 0) {
+        await renderAttendanceRoster();
+        await renderMarksRoster();
+      }
+    }
+
+    async function renderAttendanceRoster() {
+      const courseId = document.getElementById('fac-att-course-select').value;
+      const tbody = document.getElementById('fac-attendance-roster-tbody');
+      if (!courseId) return;
+
+      const roster = await api.getCourseRoster(courseId) || [];
+      if (roster.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">No students enrolled.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = roster.map(s => `
+        <tr data-student-id="${s.id}">
+          <td><strong>${s.id}</strong></td>
+          <td>${s.name}</td>
+          <td>${s.program} (${s.branch || s.department})</td>
+          <td>
+            <select class="form-select att-status-input w-auto">
+              <option value="present">Present</option>
+              <option value="absent">Absent</option>
+            </select>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('fac-attendance-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const course_id = document.getElementById('fac-att-course-select').value;
+      const attendance_date = document.getElementById('fac-att-date').value;
+      const rows = document.querySelectorAll('#fac-attendance-roster-tbody tr[data-student-id]');
+      
+      const records = Array.from(rows).map(row => ({
+        course_id,
+        student_id: row.dataset.studentId,
+        attendance_date,
+        status: row.querySelector('.att-status-input').value // 'present' | 'absent'
+      }));
+
+      try {
+        await api.markAttendance(records);
+        const fb = document.getElementById('fac-att-feedback');
+        fb.textContent = `✓ Attendance saved for ${attendance_date}!`;
+        setTimeout(() => { fb.textContent = ''; }, 3000);
+      } catch (err) { alert('Error: ' + err.message); }
+    });
+
+    async function renderMarksRoster() {
+      const courseId = document.getElementById('fac-marks-course-select').value;
+      const tbody = document.getElementById('fac-marks-roster-tbody');
+      if (!courseId) return;
+
+      const roster = await api.getCourseRoster(courseId) || [];
+      if (roster.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">No students enrolled.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = roster.map(s => `
+        <tr data-student-id="${s.id}">
+          <td><strong>${s.id}</strong></td>
+          <td>${s.name}</td>
+          <td>${s.program}</td>
+          <td>
+            <input type="number" min="0" step="0.5" class="form-input mark-score-input" value="0" style="width: 100px;" required />
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    document.getElementById('fac-marks-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const course_id = document.getElementById('fac-marks-course-select').value;
+      const exam = document.getElementById('fac-marks-exam-select').value;
+      const rows = document.querySelectorAll('#fac-marks-roster-tbody tr[data-student-id]');
+      
+      // Determine max marks mapping based on exam type selected
+      const maxDefaults = { internal: 20, mid_term: 30, final: 50 };
+
+      const records = Array.from(rows).map(row => ({
+        student_id: row.dataset.studentId,
+        marks_obtained: Number(row.querySelector('.mark-score-input').value),
+        max_marks: maxDefaults[exam] || 100
+      }));
+
+      try {
+        // C supports: saveMarks(courseId, exam, rowsArray)
+        await api.saveMarks(course_id, exam, records);
+        const fb = document.getElementById('fac-marks-feedback');
+        fb.textContent = `✓ ${exam.replace('_',' ')} marks published!`;
+        setTimeout(() => { fb.textContent = ''; }, 3000);
+      } catch (err) { alert('Error: ' + err.message); }
+    });
+
+    async function loadTeachingApplicationWindow() {
+      const windows = await api.getWindows();
+      const isAppOpen = windows.facultyApplication;
+
+      const bannerEl = document.getElementById('fac-app-window-banner');
+      const formWrapper = document.getElementById('fac-app-form-wrapper');
+
+      if (isAppOpen) {
+        bannerEl.innerHTML = `<div class="window-open-banner">🟢 Faculty Course Teaching Application Window is OPEN.</div>`;
+        formWrapper.style.display = 'block';
+      } else {
+        bannerEl.innerHTML = `
+          <div class="window-closed-banner">
+            <div>
+              <strong>🔒 Application Window is CLOSED</strong>
+              <div style="font-size: 0.9rem; margin-top: 4px;">Course teaching allocations are currently locked by the Administrator.</div>
+            </div>
+            <span class="badge badge-burgundy">Closed by Admin</span>
+          </div>`;
+        formWrapper.style.display = 'none';
+        return;
+      }
+
+      const allCourses = await api.getCourses() || [];
+      const offeredSet = new Set(currentFaculty.offered_courses || []);
+      const tbody = document.getElementById('fac-course-app-tbody');
+
+      tbody.innerHTML = allCourses.map(course => {
+        const isApplied = offeredSet.has(course.id);
+        return `
+          <tr>
+            <td><strong>${course.id}</strong></td>
+            <td>${course.title}</td>
+            <td>${course.department}</td>
+            <td>
+              ${isApplied
+                ? `<span class="badge badge-success">Applied / Assigned</span>`
+                : `<button type="button" class="btn-primary py-1 px-3 text-sm btn-apply-teach" data-course-id="${course.id}">Apply to Teach</button>`
+              }
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.querySelectorAll('.btn-apply-teach').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          btn.disabled = true; btn.textContent = 'Applying...';
+          try {
+            await api.applyToTeach(btn.dataset.courseId);
+            // Refresh local state without full reload
+            if (!currentFaculty.offered_courses) currentFaculty.offered_courses = [];
+            currentFaculty.offered_courses.push(btn.dataset.courseId);
+            await loadTeachingApplicationWindow();
+            await loadFacultyCoursesAndRosters();
+          } catch (err) {
+            alert('Error: ' + err.message);
+            btn.disabled = false; btn.textContent = 'Apply to Teach';
+          }
+        });
+      });
+    }
+
+    async function loadLeaveApplications() {
+      const tbody = document.getElementById('fac-leaves-tbody');
+      const leaves = await api.getAllLeaves() || [];
+
+      if (leaves.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">No leave requests found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = leaves.map(lv => {
+        const badge = lv.status === 'approved' ? 'badge-success' : lv.status === 'rejected' ? 'badge-burgundy' : 'badge-gold';
+        const stuName = lv.student?.name || lv.student_id;
+        
+        const actionHtml = lv.status === 'pending' ? `
+          <div class="flex gap-2">
+            <button type="button" class="btn-primary py-1 px-2 text-xs bg-emerald-600 border-emerald-600 btn-leave-action" data-id="${lv.id}" data-status="approved">Approve</button>
+            <button type="button" class="btn-secondary py-1 px-2 text-xs btn-leave-action" data-id="${lv.id}" data-status="rejected">Reject</button>
+          </div>
+        ` : `<span class="text-sm text-slate-500">Processed</span>`;
+
+        return `
+          <tr>
+            <td><strong>${stuName}</strong><br><span class="text-xs text-slate-500">${lv.student_id}</span></td>
+            <td>${lv.start_date} to ${lv.end_date}</td>
+            <td>${lv.reason}</td>
+            <td><span class="badge ${badge} uppercase">${lv.status}</span></td>
+            <td>${actionHtml}</td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.querySelectorAll('.btn-leave-action').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          try {
+            await api.updateLeaveStatus(btn.dataset.id, btn.dataset.status);
+            await loadLeaveApplications();
+          } catch (err) { alert('Error: ' + err.message); }
+        });
+      });
+    }
+
+    initFacultyPortal();
+  </script>
+</body>
+</html>

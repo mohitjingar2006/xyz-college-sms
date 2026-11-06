@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Profile · XYZ College Admin</title>
+<style>
+:root {
+  --primary-navy: #1A365D; --secondary-burgundy: #742A2A; --accent-gold: #D69E2E;
+  --bg-cream: #F7FAFC; --surface-white: #FFFFFF; --text-dark: #2D3748; --text-muted: #718096;
+  --border-color: #E2E8F0; --font-heading: 'Georgia', serif;
+  --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif; --radius: 6px;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+* { box-sizing: border-box; }
+body { background-color: var(--bg-cream); color: var(--text-dark); font-family: var(--font-body); margin: 0; padding: 0; }
+.academic-header { background-color: var(--primary-navy); color: white; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 4px solid var(--accent-gold); }
+.college-logo-brand { display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 1.3rem; font-weight: bold; }
+.crest { width: 42px; height: 42px; border-radius: 50%; border: 3px solid var(--accent-gold); display: grid; place-items: center; font-size: 0.85rem; letter-spacing: 1px; }
+.header-user { display: flex; align-items: center; gap: 14px; font-size: 0.9rem; }
+.btn { font: inherit; cursor: pointer; border-radius: var(--radius); padding: 0.5rem 1rem; border: 1px solid var(--accent-gold); background: transparent; color: white; }
+.btn:hover { background: rgba(255,255,255,0.1); }
+.btn.primary { background: var(--primary-navy); border-color: var(--primary-navy); }
+.btn.primary:hover { background: #14294a; }
+.btn.ghost { color: var(--primary-navy); border-color: var(--border-color); }
+.btn.ghost:hover { background: var(--bg-cream); }
+.btn:disabled { opacity: .6; cursor: wait; }
+main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+nav.tabs { display: flex; gap: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; flex-wrap: wrap; }
+nav.tabs a { padding: 0.75rem 0.25rem; color: var(--text-muted); text-decoration: none; border-bottom: 3px solid transparent; }
+nav.tabs a.active { color: var(--primary-navy); font-weight: 600; border-bottom-color: var(--accent-gold); }
+h1, h2 { font-family: var(--font-heading); color: var(--primary-navy); margin: 0 0 0.25rem; }
+h1 { font-size: 1.6rem; } h2 { font-size: 1.2rem; }
+.subtitle { color: var(--text-muted); margin: 0 0 1.25rem; font-size: 0.95rem; }
+.layout { display: grid; grid-template-columns: 300px 1fr; gap: 1.25rem; align-items: start; }
+.card { background: var(--surface-white); border: 1px solid var(--border-color); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+.identity { text-align: center; border-top: 4px solid var(--accent-gold); }
+.avatar { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-gold); background: var(--bg-cream); display: grid; place-items: center; margin: 0 auto 0.75rem; font-family: var(--font-heading); font-size: 2.4rem; color: var(--primary-navy); }
+.identity h2 { margin-top: .25rem; }
+.identity p { margin: 2px 0; color: var(--text-muted); font-size: .9rem; overflow-wrap: anywhere; }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: .75rem; font-weight: 700; letter-spacing: .05em; color: white; background: var(--secondary-burgundy); margin: .4rem 0; }
+.sig-box { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); }
+.sig-box small { display: block; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; font-size: .72rem; margin-bottom: 4px; }
+.sig { max-width: 100%; max-height: 70px; background: var(--surface-white); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 4px; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: .9rem 1rem; }
+.form-grid .wide { grid-column: 1 / -1; }
+.form-grid label { display: block; font-size: .78rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em; }
+.form-grid input { width: 100%; font: inherit; padding: .5rem .6rem; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--surface-white); color: var(--text-dark); }
+.form-grid input:focus { outline: 2px solid var(--accent-gold); outline-offset: 1px; }
+.form-grid input[readonly] { background: var(--bg-cream); color: var(--text-muted); }
+.hint { font-size: .8rem; color: var(--text-muted); margin: 4px 0 0; }
+.preview { max-height: 60px; max-width: 100%; margin-top: 6px; display: none; border: 1px solid var(--border-color); border-radius: var(--radius); padding: 3px; background: var(--surface-white); }
+.actions { margin-top: 1.1rem; display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+.err { color: var(--secondary-burgundy); font-size: .9rem; min-height: 1.2em; margin: .6rem 0 0; }
+#toast { position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); display: none; background: var(--secondary-burgundy); color: white; padding: .7rem 1.2rem; border-radius: var(--radius); box-shadow: var(--shadow); max-width: 90vw; z-index: 10; }
+#toast.ok { background: var(--primary-navy); }
+@media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .academic-header { padding: .8rem 1rem; } .header-user span { display: none; } }
+</style>
+</head>
+<body>
+
+<header class="academic-header">
+  <div class="college-logo-brand"><div class="crest" aria-hidden="true">XYZ</div><span>XYZ College · Admin Console</span></div>
+  <div class="header-user"><span id="adminName">Loading…</span><button class="btn" id="logoutBtn" type="button">Log out</button></div>
+</header>
+
+<main>
+  <nav class="tabs" aria-label="Admin sections">
+    <a href="admin.html">Dashboard</a>
+    <a href="admin-directory.html">Directory</a>
+    <a href="admin-profile.html" class="active">My Profile</a>
+  </nav>
+
+  <h1>My Profile</h1>
+  <p class="subtitle">Your official details as shown across the admin console.</p>
+
+  <div class="layout">
+    <aside class="card identity" aria-label="Profile summary">
+      <div id="avatar" class="avatar"></div>
+      <h2 id="vName"></h2>
+      <span class="badge" id="vRole"></span>
+      <p id="vEmail"></p>
+      <p id="vPhone"></p>
+      <div class="sig-box"><small>Signature</small><div id="vSig"></div></div>
+    </aside>
+
+    <div>
+      <form class="card" id="profileForm" novalidate>
+        <h2>Update Profile</h2>
+        <p class="subtitle">Email is your login and can’t be changed here.</p>
+        <div class="form-grid">
+          <div><label for="f-name">Full name</label><input id="f-name" required></div>
+          <div><label for="f-title">Role title</label><input id="f-title" placeholder="e.g. System Administrator"></div>
+          <div><label for="f-email">Official email</label><input id="f-email" readonly></div>
+          <div><label for="f-phone">Phone</label><input id="f-phone" type="tel"></div>
+          <div><label for="f-photo">Photo</label><input id="f-photo" type="file" accept="image/*"><img class="preview" id="p-photo" alt="New photo preview"></div>
+          <div><label for="f-sig">Signature</label><input id="f-sig" type="file" accept="image/*"><img class="preview" id="p-sig" alt="New signature preview"></div>
+          <div class="wide hint">Images up to 2 MB. A clear signature on a white or transparent background works best.</div>
+        </div>
+        <p class="err" id="err" role="alert"></p>
+        <div class="actions">
+          <button class="btn primary" id="saveBtn" type="submit">Save changes</button>
+          <button class="btn ghost" id="resetBtn" type="button">Discard changes</button>
+        </div>
+      </form>
+
+      <form class="card" id="secForm" novalidate>
+        <h2>Security Questions</h2>
+        <p class="subtitle">Used by the Forgot Password flow. Saving replaces your previous answers.</p>
+        <div class="form-grid">
+          <div><label for="s-a1">Mother’s maiden name</label><input id="s-a1" autocomplete="off"></div>
+          <div><label for="s-a2">High school name</label><input id="s-a2" autocomplete="off"></div>
+        </div>
+        <p class="err" id="secErr" role="alert"></p>
+        <div class="actions"><button class="btn primary" id="secBtn" type="submit">Update answers</button></div>
+      </form>
+    </div>
+  </div>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+import { requireRole, logout, updateOwnProfile, uploadImage, setSecurityAnswers } from './supabaseClient.js';
+
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const initials = (n) => String(n || '?').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
+const MAX = 2 * 1024 * 1024;
+let me = null, toastTimer;
+
+function toast(msg, ok) {
+  const t = $('toast'); t.textContent = msg; t.className = ok ? 'ok' : ''; t.style.display = 'block';
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.style.display = 'none'), 3500);
+}
+
+function paint() {
+  $('adminName').textContent = me.name + (me.role_title ? ' · ' + me.role_title : '');
+  $('vName').textContent = me.name;
+  $('vRole').textContent = (me.role_title || 'Administrator').toUpperCase();
+  $('vEmail').textContent = me.email;
+  $('vPhone').textContent = me.phone_number || 'No phone on file';
+  $('avatar').innerHTML = me.photo_url ? `<img class="avatar" style="margin:0" src="${esc(me.photo_url)}" alt="Your photo">` : esc(initials(me.name));
+  $('avatar').style.border = me.photo_url ? '0' : '';
+  $('vSig').innerHTML = me.signature_url ? `<img class="sig" src="${esc(me.signature_url)}" alt="Your signature">` : '<span class="hint">Not uploaded</span>';
+}
+
+function fillForm() {
+  $('f-name').value = me.name || ''; $('f-title').value = me.role_title || '';
+  $('f-email').value = me.email || ''; $('f-phone').value = me.phone_number || '';
+  for (const id of ['photo', 'sig']) { $('f-' + id).value = ''; $('p-' + id).style.display = 'none'; }
+  $('err').textContent = '';
+}
+
+function wirePreview(id) {
+  $('f-' + id).addEventListener('change', (e) => {
+    const f = e.target.files[0], img = $('p-' + id);
+    if (!f) { img.style.display = 'none'; return; }
+    if (!f.type.startsWith('image/') || f.size > MAX) { $('err').textContent = 'Please choose an image under 2 MB.'; e.target.value = ''; img.style.display = 'none'; return; }
+    $('err').textContent = '';
+    if (img.dataset.url) URL.revokeObjectURL(img.dataset.url);
+    img.dataset.url = URL.createObjectURL(f); img.src = img.dataset.url; img.style.display = 'block';
+  });
+}
+
+async function save(e) {
+  e.preventDefault();
+  const name = $('f-name').value.trim();
+  if (!name) { $('err').textContent = 'Name is required.'; return; }
+  const btn = $('saveBtn'); btn.disabled = true; btn.textContent = 'Saving…'; $('err').textContent = '';
+  try {
+    const fields = { name, role_title: $('f-title').value.trim() || null, phone_number: $('f-phone').value.trim() || null };
+    const photo = $('f-photo').files[0], sig = $('f-sig').files[0];
+    if (photo) fields.photo_url = await uploadImage(photo, 'photo', me.id);
+    if (sig) fields.signature_url = await uploadImage(sig, 'signature', me.id);
+    me = await updateOwnProfile('admin', fields);
+    paint(); fillForm();
+    toast('Profile updated.', true);
+  } catch (ex) { $('err').textContent = ex.message; }
+  finally { btn.disabled = false; btn.textContent = 'Save changes'; }
+}
+
+async function saveSecurity(e) {
+  e.preventDefault();
+  const a1 = $('s-a1').value.trim(), a2 = $('s-a2').value.trim();
+  if (!a1 || !a2) { $('secErr').textContent = 'Both answers are required.'; return; }
+  const btn = $('secBtn'); btn.disabled = true; $('secErr').textContent = '';
+  try { await setSecurityAnswers(a1, a2); $('s-a1').value = ''; $('s-a2').value = ''; toast('Security answers updated.', true); }
+  catch (ex) { $('secErr').textContent = ex.message; }
+  finally { btn.disabled = false; }
+}
+
+(async function init() {
+  const base = await requireRole('admin');
+  if (!base) return;
+  me = base;
+  $('logoutBtn').addEventListener('click', async () => { await logout(); location.href = 'index.html'; });
+  wirePreview('photo'); wirePreview('sig');
+  $('profileForm').addEventListener('submit', save);
+  $('resetBtn').addEventListener('click', fillForm);
+  $('secForm').addEventListener('submit', saveSecurity);
+  paint(); fillForm();
+})();
+</script>
+</body>
+</html>

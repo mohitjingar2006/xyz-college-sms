@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Directory · XYZ College Admin</title>
+<style>
+:root {
+  --primary-navy: #1A365D; --secondary-burgundy: #742A2A; --accent-gold: #D69E2E;
+  --bg-cream: #F7FAFC; --surface-white: #FFFFFF; --text-dark: #2D3748; --text-muted: #718096;
+  --border-color: #E2E8F0; --font-heading: 'Georgia', serif;
+  --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif; --radius: 6px;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+* { box-sizing: border-box; }
+body { background-color: var(--bg-cream); color: var(--text-dark); font-family: var(--font-body); margin: 0; padding: 0; }
+.academic-header {
+  background-color: var(--primary-navy); color: white; padding: 1rem 2rem; display: flex; align-items: center;
+  justify-content: space-between; gap: 1rem; border-bottom: 4px solid var(--accent-gold);
+}
+.college-logo-brand { display: flex; align-items: center; gap: 12px; font-family: var(--font-heading); font-size: 1.3rem; font-weight: bold; }
+.crest { width: 42px; height: 42px; border-radius: 50%; border: 3px solid var(--accent-gold); display: grid; place-items: center; font-size: 0.85rem; letter-spacing: 1px; }
+.header-user { display: flex; align-items: center; gap: 14px; font-size: 0.9rem; }
+.btn { font: inherit; cursor: pointer; border-radius: var(--radius); padding: 0.5rem 1rem; border: 1px solid var(--accent-gold); background: transparent; color: white; }
+.btn:hover { background: rgba(255,255,255,0.1); }
+.btn.primary { background: var(--primary-navy); border-color: var(--primary-navy); }
+.btn.primary:hover { background: #14294a; }
+.btn.ghost { color: var(--primary-navy); border-color: var(--border-color); }
+.btn.ghost:hover { background: var(--bg-cream); }
+main { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+nav.tabs { display: flex; gap: 1.5rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1.5rem; }
+nav.tabs a { padding: 0.75rem 0.25rem; color: var(--text-muted); text-decoration: none; border-bottom: 3px solid transparent; }
+nav.tabs a.active { color: var(--primary-navy); font-weight: 600; border-bottom-color: var(--accent-gold); }
+h1, h2 { font-family: var(--font-heading); color: var(--primary-navy); margin: 0 0 0.25rem; }
+h1 { font-size: 1.6rem; } h2 { font-size: 1.3rem; }
+.subtitle { color: var(--text-muted); margin: 0 0 1.25rem; font-size: 0.95rem; }
+.card { background: var(--surface-white); border: 1px solid var(--border-color); border-radius: var(--radius); box-shadow: var(--shadow); }
+.segmented { display: inline-flex; border: 1px solid var(--border-color); border-radius: var(--radius); overflow: hidden; margin-bottom: 1rem; background: var(--surface-white); }
+.segmented button { font: inherit; padding: 0.55rem 1.3rem; border: 0; background: transparent; cursor: pointer; color: var(--text-muted); border-bottom: 3px solid transparent; }
+.segmented button.active { color: var(--primary-navy); font-weight: 600; border-bottom-color: var(--accent-gold); }
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.75rem; padding: 1rem; margin-bottom: 1rem; align-items: end; }
+.filters label { display: block; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em; }
+.filters select, .filters input { width: 100%; font: inherit; padding: 0.5rem 0.6rem; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--surface-white); color: var(--text-dark); }
+.filters select:focus, .filters input:focus { outline: 2px solid var(--accent-gold); outline-offset: 1px; }
+.result-meta { color: var(--text-muted); font-size: 0.85rem; margin: 0 0 0.5rem; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: var(--surface-white); }
+th { text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--text-muted); padding: 0.7rem 1rem; border-bottom: 2px solid var(--border-color); white-space: nowrap; }
+td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.92rem; }
+tbody tr { cursor: pointer; }
+tbody tr:hover, tbody tr:focus { background: var(--bg-cream); outline: none; }
+tbody tr:focus-visible { box-shadow: inset 3px 0 0 var(--accent-gold); }
+.empty { padding: 2rem; text-align: center; color: var(--text-muted); }
+.badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; color: white; background: var(--secondary-burgundy); margin: 2px 4px 2px 0; }
+.badge.navy { background: var(--primary-navy); }
+.avatar { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent-gold); background: var(--bg-cream); display: grid; place-items: center; font-family: var(--font-heading); font-size: 2rem; color: var(--primary-navy); flex: none; }
+dialog { border: 0; border-radius: var(--radius); padding: 0; width: min(720px, 94vw); max-height: 90vh; box-shadow: 0 20px 40px rgba(0,0,0,.25); color: var(--text-dark); }
+dialog::backdrop { background: rgba(26,54,93,.55); }
+.modal-head { display: flex; gap: 1.25rem; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 4px solid var(--accent-gold); background: var(--surface-white); }
+.modal-head .grow { flex: 1; min-width: 0; }
+.modal-head p { margin: 2px 0; color: var(--text-muted); font-size: .9rem; overflow-wrap: anywhere; }
+.modal-body { padding: 1rem 1.5rem 1.5rem; overflow-y: auto; max-height: calc(90vh - 150px); background: var(--bg-cream); }
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.9rem 1.5rem; margin: 0; }
+.fields div.wide { grid-column: 1 / -1; }
+.fields dt { font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted); }
+.fields dd { margin: 2px 0 0; overflow-wrap: anywhere; }
+.sig { max-height: 70px; max-width: 240px; background: var(--surface-white); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 4px; }
+.modal-foot { padding: .75rem 1.5rem; text-align: right; background: var(--surface-white); border-top: 1px solid var(--border-color); }
+.btn.danger { background: var(--secondary-burgundy); border-color: var(--secondary-burgundy); color: white; }
+.btn.danger:hover { background: #5a2020; }
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .8rem 1rem; }
+.form-grid .wide { grid-column: 1 / -1; }
+.form-grid label { display: block; font-size: .78rem; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em; }
+.form-grid input, .form-grid select, .form-grid textarea { width: 100%; font: inherit; padding: .5rem .6rem; border: 1px solid var(--border-color); border-radius: var(--radius); background: var(--surface-white); color: var(--text-dark); }
+.form-grid input:focus, .form-grid select:focus, .form-grid textarea:focus { outline: 2px solid var(--accent-gold); outline-offset: 1px; }
+.form-grid input[readonly] { background: var(--bg-cream); color: var(--text-muted); }
+.form-grid .sect { grid-column: 1 / -1; font-family: var(--font-heading); color: var(--primary-navy); border-bottom: 1px solid var(--border-color); padding-top: .4rem; }
+.checks label { display: inline-flex; align-items: center; gap: 6px; text-transform: none; letter-spacing: 0; font-size: .9rem; color: var(--text-dark); margin-right: 1rem; }
+.checks input { width: auto; }
+.err { color: var(--secondary-burgundy); font-size: .9rem; margin: .75rem 0 0; min-height: 1.2em; }
+#toast.ok { background: var(--primary-navy); }
+#toast { position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); display: none; background: var(--secondary-burgundy); color: white; padding: .7rem 1.2rem; border-radius: var(--radius); box-shadow: var(--shadow); max-width: 90vw; z-index: 1000; }
+@media (max-width: 600px) { .academic-header { padding: .8rem 1rem; } .header-user span { display: none; } .modal-head { flex-direction: column; text-align: center; } }
+</style>
+</head>
+<body>
+
+<header class="academic-header">
+  <div class="college-logo-brand"><div class="crest" aria-hidden="true">XYZ</div><span>XYZ College · Admin Console</span></div>
+  <div class="header-user"><span id="adminName">Loading…</span><button class="btn" id="logoutBtn" type="button">Log out</button></div>
+</header>
+
+<main>
+  <nav class="tabs" aria-label="Admin sections">
+    <a href="admin.html">Dashboard</a>
+    <a href="admin-directory.html" class="active">Directory</a>
+    <a href="admin-profile.html">My Profile</a>
+  </nav>
+
+  <h1>Directory</h1>
+  <p class="subtitle">Search and filter accounts. Select a row to see the complete profile.</p>
+
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap">
+  <div class="segmented" role="tablist" aria-label="Directory type">
+    <button type="button" role="tab" id="tab-student" class="active" aria-selected="true">Students</button>
+    <button type="button" role="tab" id="tab-faculty" aria-selected="false">Faculty</button>
+  </div>
+  <button type="button" class="btn primary" id="addBtn"></button>
+  </div>
+
+  <form class="card filters" id="filters" autocomplete="off" onsubmit="return false"></form>
+
+  <p class="result-meta" id="meta" aria-live="polite"></p>
+  <div class="card table-wrap"><table id="table"></table></div>
+</main>
+
+<dialog id="modal" aria-labelledby="mName">
+  <div class="modal-head">
+    <div id="mAvatar" class="avatar"></div>
+    <div class="grow"><h2 id="mName"></h2><p id="mSub"></p><p id="mEmail"></p></div>
+  </div>
+  <div class="modal-body"><dl class="fields" id="mFields"></dl></div>
+  <div class="modal-foot"><button class="btn danger" id="deleteBtn" type="button">Delete</button> <button class="btn primary" id="editBtn" type="button">Edit</button> <button class="btn ghost" id="closeModal" type="button">Close</button></div>
+</dialog>
+<dialog id="formModal" aria-labelledby="formTitle">
+  <form id="accountForm" novalidate>
+    <div class="modal-head"><h2 id="formTitle"></h2></div>
+    <div class="modal-body"><div class="form-grid" id="formFields"></div><p class="err" id="formErr" role="alert"></p></div>
+    <div class="modal-foot"><button class="btn ghost" id="cancelForm" type="button">Cancel</button> <button class="btn primary" id="saveBtn" type="submit">Save</button></div>
+  </form>
+</dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script type="module">
+import { requireRole, logout, searchStudents, searchFaculty, getUserDetail, createAccount, updateAccount, deleteAccount, uploadImage, getMessOptions, ENUMS } from './supabaseClient.js';
+
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const dash = (v) => (v === null || v === undefined || v === '' ? '<span style="color:var(--text-muted)">—</span>' : esc(v));
+const initials = (n) => String(n || '?').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
+const opts = (list, first) => `<option value="">${first}</option>` + list.map((o) => `<option>${esc(o)}</option>`).join('');
+
+let toastTimer;
+function toast(msg, ok) { const t = $('toast'); t.textContent = msg; t.className = ok ? 'ok' : ''; t.style.display = 'block'; clearTimeout(toastTimer); toastTimer = setTimeout(() => (t.style.display = 'none'), 4000); }
+
+let mode = 'student', reqId = 0, rows = [], debounce, current = null, editing = null, formRole = 'student';
+
+const FILTERS = {
+  student: () => `
+    <div><label for="f-department">Department</label><select id="f-department">${opts(ENUMS.departments, 'All departments')}</select></div>
+    <div><label for="f-branch">Branch</label><input id="f-branch" type="search" placeholder="e.g. AI/DS"></div>
+    <div><label for="f-program">Program</label><select id="f-program">${opts(ENUMS.programs, 'All programs')}</select></div>
+    <div><label for="f-text">Name or email</label><input id="f-text" type="search" placeholder="Search…"></div>
+    <div><button type="button" class="btn primary" id="f-reset">Reset filters</button></div>`,
+  faculty: () => `
+    <div><label for="f-department">Department</label><select id="f-department">${opts(ENUMS.departments, 'All departments')}</select></div>
+    <div><label for="f-designation">Designation</label><select id="f-designation">${opts(ENUMS.designations, 'All designations')}</select></div>
+    <div><label for="f-text">Name or email</label><input id="f-text" type="search" placeholder="Search…"></div>
+    <div><button type="button" class="btn primary" id="f-reset">Reset filters</button></div>`,
+};
+
+const COLUMNS = {
+  student: [['Name', (r) => r.name], ['Program', (r) => r.program], ['Department', (r) => r.department], ['Branch', (r) => r.branch], ['Sem', (r) => r.current_semester]],
+  faculty: [['Name', (r) => r.name], ['Designation', (r) => r.designation], ['Department', (r) => r.department],
+            ['Positions', (r) => (r.additional_positions || []).filter((p) => p !== 'None').join(', ')]],
+};
+
+function buildFilters() {
+  $('filters').innerHTML = FILTERS[mode]();
+  $('filters').querySelectorAll('select').forEach((el) => el.addEventListener('change', load));
+  $('filters').querySelectorAll('input').forEach((el) => el.addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(load, 300); }));
+  $('f-reset').addEventListener('click', () => { buildFilters(); load(); });
+}
+
+const val = (id) => ($(id)?.value || '').trim();
+
+async function load() {
+  const id = ++reqId;
+  $('meta').textContent = 'Loading…';
+  try {
+    const data = mode === 'student'
+      ? await searchStudents({ department: val('f-department'), branch: val('f-branch'), program: val('f-program'), text: val('f-text') })
+      : await searchFaculty({ department: val('f-department'), designation: val('f-designation'), text: val('f-text') });
+    if (id !== reqId) return;                       // a newer request superseded this one
+    rows = data;
+    render();
+  } catch (e) { if (id === reqId) { $('meta').textContent = ''; toast('Could not load directory: ' + e.message); } }
+}
+
+function render() {
+  const cols = COLUMNS[mode];
+  $('meta').textContent = `${rows.length} ${mode === 'student' ? 'student' : 'faculty member'}${rows.length === 1 ? '' : 's'} found` + (rows.length >= 200 ? ' (showing first 200; refine your search)' : '');
+  if (!rows.length) { $('table').innerHTML = '<tbody><tr><td class="empty">No matching records.</td></tr></tbody>'; return; }
+  $('table').innerHTML = '<thead><tr>' + cols.map(([h]) => `<th>${h}</th>`).join('') + '</tr></thead><tbody>' +
+    rows.map((r) => `<tr tabindex="0" data-id="${esc(r.id)}" aria-label="Open profile of ${esc(r.name)}">` + cols.map(([, f]) => `<td>${dash(f(r))}</td>`).join('') + '</tr>').join('') + '</tbody>';
+}
+
+const field = (label, html, wide) => `<div${wide ? ' class="wide"' : ''}><dt>${label}</dt><dd>${html}</dd></div>`;
+const img = (url, cls, alt) => (url ? `<img class="${cls}" src="${esc(url)}" alt="${esc(alt)}">` : '<span style="color:var(--text-muted)">Not uploaded</span>');
+
+function detailFields(u) {
+  const common = field('Phone', dash(u.phone_number)) + field('Department', dash(u.department));
+  if (u.role === 'student') {
+    return common + field('Branch', dash(u.branch)) + field('Program', dash(u.program)) + field('Current semester', dash(u.current_semester)) +
+      field('Hostel details', dash(u.hostel_details)) + field('Mess choice', dash(u.mess_choice)) +
+      field('Parent phone', dash(u.parent_phone_number)) + field('Guardian phone', dash(u.guardian_phone_number)) +
+      field('Home address', dash(u.home_address), true) + field('Signature', img(u.signature_url, 'sig', 'Signature of ' + u.name), true);
+  }
+  const positions = (u.additional_positions || []).filter((p) => p !== 'None');
+  const edu = (u.education_history || []).map((e) => `<li>${esc(e.degree)}, ${esc(e.institution)}${e.year ? ' (' + esc(e.year) + ')' : ''}</li>`).join('');
+  const courses = (u.offered_courses || []).map((c) => `<span class="badge navy">${esc(c)}</span>`).join('');
+  return common + field('Designation', dash(u.designation)) +
+    field('Additional positions', positions.length ? positions.map((p) => `<span class="badge">${esc(p)}</span>`).join('') : dash('None')) +
+    field('Research topics', dash(u.research_topics), true) +
+    field('Education history', edu ? `<ul style="margin:0;padding-left:1.1rem">${edu}</ul>` : dash(''), true) +
+    field('Offered courses', courses || dash(''), true) + field('Signature', img(u.signature_url, 'sig', 'Signature of ' + u.name), true);
+}
+
+async function openDetail(id) {
+  try {
+    const u = await getUserDetail(id);
+    current = u;
+    $('mName').textContent = u.name;
+    $('mSub').textContent = u.role === 'student' ? `${u.program} · ${u.branch || u.department}` : u.designation;
+    $('mEmail').textContent = u.email;
+    $('mAvatar').innerHTML = u.photo_url ? `<img class="avatar" src="${esc(u.photo_url)}" alt="Photo of ${esc(u.name)}">` : esc(initials(u.name));
+    $('mAvatar').style.border = u.photo_url ? '0' : '';
+    $('mFields').innerHTML = detailFields(u);
+    $('modal').showModal();
+  } catch (e) { toast('Could not open profile: ' + e.message); }
+}
+
+function setMode(next) {
+  mode = next;
+  ['student', 'faculty'].forEach((m) => { const b = $('tab-' + m); b.classList.toggle('active', m === next); b.setAttribute('aria-selected', String(m === next)); });
+  $('addBtn').textContent = '+ Add ' + next;
+  buildFilters();
+  load();
+}
+
+// ---------- Add / Edit / Delete ----------
+const fi = (id, label, v, attrs = '', wide = false) => `<div${wide ? ' class="wide"' : ''}><label for="${id}">${label}</label><input id="${id}" value="${esc(v ?? '')}" ${attrs}></div>`;
+const fs = (id, label, list, v, req) => `<div><label for="${id}">${label}</label><select id="${id}"${req ? ' required' : ''}>${req ? '' : '<option value=""></option>'}${list.map((o) => `<option${String(o) === String(v) ? ' selected' : ''}>${esc(o)}</option>`).join('')}</select></div>`;
+const fa = (id, label, v) => `<div class="wide"><label for="${id}">${label}</label><textarea id="${id}" rows="3">${esc(v ?? '')}</textarea></div>`;
+const eduToText = (h) => (h || []).map((e) => [e.degree, e.institution, e.year].map((x) => x ?? '').join(' | ')).join('\n');
+const textToEdu = (t) => t.split('\n').map((l) => l.trim()).filter(Boolean).map((l) => { const [degree = '', institution = '', year = ''] = l.split('|').map((x) => x.trim()); return { degree, institution, year }; });
+
+async function openForm(role, user) {
+  editing = user; formRole = role;
+  const u = user || {};
+  const mess = role === 'student' ? await getMessOptions().catch(() => []) : [];
+  let h = `<div class="sect">Account</div>` + fi('x-name', 'Full name', u.name, 'required') +
+    fi('x-email', 'Official email', u.email, user ? 'readonly' : 'type="email" required') +
+    fi('x-phone', 'Phone', u.phone_number, 'type="tel"') + fs('x-department', 'Department', ENUMS.departments, u.department, true);
+  if (!user) h += fi('x-password', 'Initial password (min 8)', '', 'type="password" minlength="8" required autocomplete="new-password"') +
+    fi('x-a1', "Security answer: mother's maiden name", '', 'required autocomplete="off"') + fi('x-a2', 'Security answer: high school name', '', 'required autocomplete="off"');
+  if (role === 'student') {
+    h += '<div class="sect">Academic &amp; personal</div>' + fi('x-branch', 'Branch', u.branch, 'placeholder="e.g. AI/DS"') +
+      fs('x-program', 'Program', ENUMS.programs, u.program, true) + fs('x-semester', 'Current semester', ENUMS.semesters, u.current_semester, true) +
+      fi('x-hostel', 'Hostel details', u.hostel_details, 'placeholder="Hostel Y4, Room W310"') + fs('x-mess', 'Mess', mess, u.mess_choice, false) +
+      fi('x-parent', 'Parent phone', u.parent_phone_number, 'type="tel"') + fi('x-guardian', 'Guardian phone', u.guardian_phone_number, 'type="tel"') +
+      fa('x-address', 'Home address', u.home_address);
+  } else {
+    const cur = u.additional_positions || [];
+    h += '<div class="sect">Faculty details</div>' + fs('x-designation', 'Designation', ENUMS.designations, u.designation, true) +
+      `<div class="wide checks"><label style="display:block;text-transform:uppercase;font-size:.78rem;color:var(--text-muted)">Additional positions</label>` +
+      ENUMS.positions.filter((p) => p !== 'None').map((p) => `<label><input type="checkbox" name="x-pos" value="${esc(p)}"${cur.includes(p) ? ' checked' : ''}> ${esc(p)}</label>`).join('') + '</div>' +
+      fa('x-research', 'Research topics', u.research_topics) + fa('x-edu', 'Education history (one per line: Degree | Institution | Year)', eduToText(u.education_history));
+  }
+  h += '<div class="sect">Images (optional, max 2 MB)</div>' +
+    `<div><label for="x-photo">Photo</label><input id="x-photo" type="file" accept="image/*"></div><div><label for="x-sig">Signature</label><input id="x-sig" type="file" accept="image/*"></div>`;
+  $('formTitle').textContent = (user ? 'Edit ' : 'Add ') + role + (user ? ': ' + user.name : '');
+  $('formFields').innerHTML = h;
+  $('formErr').textContent = '';
+  $('formModal').showModal();
+}
+
+async function saveForm(e) {
+  e.preventDefault();
+  const g = (id) => ($(id)?.value ?? '').trim(), n = (id) => g(id) || null;
+  const err = $('formErr'), btn = $('saveBtn');
+  err.textContent = '';
+  if (!g('x-name') || !g('x-department') || (formRole === 'student' ? !g('x-program') || !g('x-semester') : !g('x-designation'))) { err.textContent = 'Please fill in all required fields.'; return; }
+  if (!editing && (!/^\S+@\S+\.\S+$/.test(g('x-email')) || g('x-password').length < 8 || !g('x-a1') || !g('x-a2'))) { err.textContent = 'Enter a valid email, a password of at least 8 characters, and both security answers.'; return; }
+  const base = { name: g('x-name'), phone_number: n('x-phone'), department: g('x-department') };
+  const fields = formRole === 'student'
+    ? { ...base, branch: n('x-branch'), program: g('x-program'), current_semester: Number(g('x-semester')), hostel_details: n('x-hostel'), mess_choice: n('x-mess'),
+        parent_phone_number: n('x-parent'), guardian_phone_number: n('x-guardian'), home_address: n('x-address') }
+    : (() => { const pos = [...document.querySelectorAll('input[name="x-pos"]:checked')].map((c) => c.value);
+        return { ...base, designation: g('x-designation'), additional_positions: pos.length ? pos : ['None'], research_topics: n('x-research'), education_history: textToEdu(g('x-edu')) }; })();
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const files = [['photo', $('x-photo').files[0], 'photo_url'], ['signature', $('x-sig').files[0], 'signature_url']];
+    let id = editing?.id;
+    if (editing) {
+      for (const [kind, f, col] of files) if (f) fields[col] = await uploadImage(f, kind, id);
+      await updateAccount(id, fields);
+    } else {
+      id = await createAccount({ role: formRole, email: g('x-email'), ...fields }, g('x-password'), { a1: g('x-a1'), a2: g('x-a2') });
+      const extra = {};
+      for (const [kind, f, col] of files) if (f) extra[col] = await uploadImage(f, kind, id);
+      if (Object.keys(extra).length) await updateAccount(id, extra);
+    }
+    $('formModal').close();
+    toast(editing ? 'Changes saved.' : formRole + ' account created.', true);
+    load();
+  } catch (ex) { err.textContent = ex.message; }
+  finally { btn.disabled = false; btn.textContent = 'Save'; }
+}
+
+async function deleteCurrent() {
+  if (!current) return;
+  if (!confirm(`Permanently delete ${current.name}?\n\nThis removes their login and all related attendance, marks, leave and registration records. This cannot be undone.`)) return;
+  try { await deleteAccount(current.id); $('modal').close(); toast('Account deleted.', true); load(); }
+  catch (ex) { toast('Delete failed: ' + ex.message); }
+}
+
+(async function init() {
+  const me = await requireRole('admin');
+  if (!me) return;
+  $('adminName').textContent = me.name + (me.role_title ? ' · ' + me.role_title : '');
+  $('logoutBtn').addEventListener('click', async () => { await logout(); location.href = 'index.html'; });
+  $('tab-student').addEventListener('click', () => setMode('student'));
+  $('tab-faculty').addEventListener('click', () => setMode('faculty'));
+  $('table').addEventListener('click', (e) => { const tr = e.target.closest('tbody tr[data-id]'); if (tr) openDetail(tr.dataset.id); });
+  $('table').addEventListener('keydown', (e) => { if (e.key === 'Enter') { const tr = e.target.closest('tbody tr[data-id]'); if (tr) openDetail(tr.dataset.id); } });
+  $('closeModal').addEventListener('click', () => $('modal').close());
+  $('addBtn').addEventListener('click', () => openForm(mode, null));
+  $('editBtn').addEventListener('click', () => { $('modal').close(); openForm(current.role, current); });
+  $('deleteBtn').addEventListener('click', deleteCurrent);
+  $('cancelForm').addEventListener('click', () => $('formModal').close());
+  $('accountForm').addEventListener('submit', saveForm);
+  $('modal').addEventListener('click', (e) => { if (e.target === $('modal')) $('modal').close(); });
+  setMode('student');
+})();
+</script>
+</body>
+</html>

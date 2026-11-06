@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XYZ College SMS | Student Portal</title>
+  
+  <!-- Member A's Styles & Tailwind for Profile Component -->
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Member C's Database Client (Modules) & Globals -->
+  <script type="module" src="./supabaseClient.js"></script>
+  
+  <!-- Member A's Profile Component logic -->
+  <script src="profile.js"></script>
+
+  <style>
+    /* Scoped Portal Tab & Table Styles (Complementing Member A's base styles) */
+    .portal-container { max-width: 1280px; margin: 2rem auto; padding: 0 1.5rem; }
+    .portal-tabs { display: flex; gap: 0.5rem; border-bottom: 2px solid var(--border-color); margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .tab-btn { background: transparent; border: none; padding: 0.85rem 1.4rem; font-family: var(--font-heading); font-size: 1rem; font-weight: bold; color: var(--text-muted); cursor: pointer; border-bottom: 4px solid transparent; transition: all 0.2s ease; }
+    .tab-btn:hover { color: var(--primary-navy); }
+    .tab-btn.active { color: var(--primary-navy); border-bottom-color: var(--accent-gold); background-color: var(--surface-white); border-radius: var(--radius) var(--radius) 0 0; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-box { background: var(--surface-white); border-left: 4px solid var(--primary-navy); padding: 1rem 1.25rem; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .stat-box .label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.35rem; }
+    .stat-box .value { font-family: var(--font-heading); font-size: 1.1rem; font-weight: bold; color: var(--text-dark); }
+    .badge { display: inline-block; padding: 0.25rem 0.65rem; font-size: 0.78rem; font-weight: 600; border-radius: 4px; }
+    .badge-navy { background: var(--primary-navy); color: white; }
+    .badge-burgundy { background: var(--secondary-burgundy); color: white; }
+    .badge-gold { background: var(--accent-gold); color: #1A202C; }
+    .badge-success { background: #2F855A; color: white; }
+    .window-closed-banner { background-color: #FFF5F5; border: 1px solid var(--secondary-burgundy); border-left: 6px solid var(--secondary-burgundy); color: var(--secondary-burgundy); padding: 1.25rem; border-radius: var(--radius); margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; }
+    .window-open-banner { background-color: #FEFCBF; border: 1px solid var(--accent-gold); border-left: 6px solid var(--accent-gold); color: #744210; padding: 1rem 1.25rem; border-radius: var(--radius); margin-bottom: 1rem; font-weight: 600; }
+    .table-responsive { overflow-x: auto; }
+    .academic-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    .academic-table th { background-color: var(--primary-navy); color: white; font-family: var(--font-heading); text-align: left; padding: 0.75rem 1rem; }
+    .academic-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); color: var(--text-dark); }
+    .academic-table tr:hover td { background-color: #EDF2F7; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+  </style>
+</head>
+<body>
+
+  <header class="academic-header">
+    <div class="college-logo-brand">
+      <div class="academic-crest-icon">XYZ</div>
+      <span>XYZ College · Student Portal</span>
+    </div>
+    <div class="flex items-center gap-4">
+      <span id="header-user-info" class="text-sm font-semibold">Loading...</span>
+      <button id="logout-btn" class="btn-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.85rem;">Logout</button>
+    </div>
+  </header>
+
+  <main class="portal-container">
+    <!-- Academic Summary Cards -->
+    <div class="grid-4">
+      <div class="stat-box">
+        <div class="label">Program & Semester</div>
+        <div class="value" id="stu-program">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Department & Branch</div>
+        <div class="value" id="stu-dept">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Hostel Allocation</div>
+        <div class="value" id="stu-hostel">—</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Selected Mess</div>
+        <div class="value" id="stu-mess-summary">—</div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="portal-tabs">
+      <button class="tab-btn active" data-target="stu-attendance-tab">Attendance & Grades</button>
+      <button class="tab-btn" data-target="stu-registration-tab">Semester Course Registration</button>
+      <button class="tab-btn" data-target="stu-mess-leave-tab">Mess Selection & Leave Requests</button>
+      <button class="tab-btn" data-target="stu-profile-tab">My Profile</button>
+    </div>
+
+    <!-- TAB 1: Attendance & Marks -->
+    <section id="stu-attendance-tab" class="tab-panel active">
+      <div class="academic-card">
+        <div class="academic-card-header flex justify-between items-center">
+          <h3 class="academic-card-title">Enrolled Courses — Attendance & Exam Marks</h3>
+          <span class="badge badge-navy">Official Read-Only Record</span>
+        </div>
+        <div class="table-responsive">
+          <table class="academic-table">
+            <thead>
+              <tr>
+                <th>Course Code</th>
+                <th>Course Title</th>
+                <th>Classes Attended</th>
+                <th>Attendance %</th>
+                <th>Internal</th>
+                <th>Mid-Term</th>
+                <th>Final</th>
+                <th>Total</th>
+                <th>Grade</th>
+              </tr>
+            </thead>
+            <tbody id="student-academic-tbody">
+              <tr><td colspan="9" class="text-center py-4">Loading academic records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: Conditional Semester Course Registration -->
+    <section id="stu-registration-tab" class="tab-panel">
+      <div id="stu-reg-window-banner"></div>
+      
+      <div id="stu-reg-form-wrapper" class="academic-card" style="display: none;">
+        <div class="academic-card-header flex justify-between items-center">
+          <h3 class="academic-card-title">Available Courses for Registration</h3>
+          <span class="badge badge-success">Window OPEN</span>
+        </div>
+        <div class="table-responsive">
+          <table class="academic-table">
+            <thead>
+              <tr>
+                <th>Course Code</th>
+                <th>Course Title</th>
+                <th>Department</th>
+                <th>Credits</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="student-course-reg-tbody">
+              <tr><td colspan="5" class="text-center py-4">Loading courses...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="academic-card">
+        <div class="academic-card-header flex justify-between items-center">
+          <h3 class="academic-card-title">My Registered Courses</h3>
+          <span class="badge badge-navy" id="my-reg-count">0 Courses</span>
+        </div>
+        <div class="table-responsive">
+          <table class="academic-table">
+            <thead>
+              <tr>
+                <th>Course Code</th>
+                <th>Course Title</th>
+                <th>Semester</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="my-registrations-tbody">
+              <tr><td colspan="4" class="text-center py-4">Loading your registrations...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: Mess Selection & Leave Application -->
+    <section id="stu-mess-leave-tab" class="tab-panel">
+      <div class="grid-2">
+        <div class="academic-card">
+          <div class="academic-card-header flex justify-between items-center">
+            <h3 class="academic-card-title">Hostel Mess Selection</h3>
+            <span class="badge badge-navy">Student Exclusive</span>
+          </div>
+          <form id="mess-selection-form">
+            <div class="form-group">
+              <label class="form-label">Assigned Hostel Room</label>
+              <input type="text" id="stu-hostel-readonly" class="form-input bg-slate-100" disabled />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="mess-choice-select">Select Mess Facility</label>
+              <select id="mess-choice-select" class="form-select" required></select>
+            </div>
+            <button type="submit" class="btn-primary w-full">Update Mess Choice</button>
+            <div id="mess-feedback" class="mt-2 text-sm font-semibold text-emerald-600 text-center"></div>
+          </form>
+        </div>
+
+        <div class="academic-card">
+          <div class="academic-card-header flex justify-between items-center">
+            <h3 class="academic-card-title">Submit Leave Application</h3>
+            <span class="badge badge-burgundy">Requires Approval</span>
+          </div>
+          <form id="student-leave-form">
+            <div class="flex gap-4">
+              <div class="form-group flex-1">
+                <label class="form-label" for="leave-start">Start Date</label>
+                <input type="date" id="leave-start" class="form-input" required />
+              </div>
+              <div class="form-group flex-1">
+                <label class="form-label" for="leave-end">End Date</label>
+                <input type="date" id="leave-end" class="form-input" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="leave-reason">Reason for Leave</label>
+              <textarea id="leave-reason" rows="2" class="form-textarea" placeholder="Specify reason..." required></textarea>
+            </div>
+            <button type="submit" class="btn-secondary w-full">Submit Leave Request</button>
+            <div id="leave-feedback" class="mt-2 text-sm font-semibold text-emerald-600 text-center"></div>
+          </form>
+
+          <h4 class="mt-6 font-serif font-bold text-slate-800 border-b pb-2 mb-2">My Leave Applications</h4>
+          <div class="table-responsive">
+            <table class="academic-table">
+              <thead><tr><th>Start Date</th><th>End Date</th><th>Status</th></tr></thead>
+              <tbody id="student-leaves-tbody">
+                <tr><td colspan="3" class="text-center py-2">Loading leave history...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Member A Unified Profile Mount -->
+    <section id="stu-profile-tab" class="tab-panel">
+      <div id="profile-container"></div>
+    </section>
+  </main>
+
+  <script type="module">
+    import * as api from './supabaseClient.js';
+
+    let currentUser = null;
+    let myRegistrations = [];
+    let allCourses = [];
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.target).classList.add('active');
+      });
+    });
+
+    document.getElementById('logout-btn').addEventListener('click', async () => {
+      await api.logout();
+    });
+
+    async function initStudentPortal() {
+      currentUser = await api.requireRole('student');
+      if (!currentUser) return;
+      
+      window.currentUser = currentUser;
+
+      // Populate Header & Summary
+      document.getElementById('header-user-info').textContent = `${currentUser.name} (${currentUser.id})`;
+      document.getElementById('stu-program').textContent = `${currentUser.program || 'B.Tech'} (Sem ${currentUser.current_semester || 1})`;
+      document.getElementById('stu-dept').textContent = `${currentUser.department || '—'} — ${currentUser.branch || '—'}`;
+      document.getElementById('stu-hostel').textContent = currentUser.hostel_details || 'Not Assigned';
+      document.getElementById('stu-hostel-readonly').value = currentUser.hostel_details || 'Not Assigned';
+      document.getElementById('stu-mess-summary').textContent = currentUser.mess_choice || 'Not Selected';
+      
+      // Load Mess Options from DB
+      try {
+        const messOpts = typeof api.getMessOptions === 'function' ? await api.getMessOptions() : api.ENUMS?.mess_options || ['Mess A', 'Mess B', 'Mess C (Veg)'];
+        document.getElementById('mess-choice-select').innerHTML = messOpts.map(m => `<option value="${m}" ${m === currentUser.mess_choice ? 'selected' : ''}>${m}</option>`).join('');
+      } catch (e) { console.error('Failed to load mess options', e); }
+
+      // Mount Member A Profile Component
+      if (typeof window.renderProfileView === 'function') {
+        window.renderProfileView(currentUser, 'profile-container');
+      }
+
+      await Promise.all([
+        loadRegistrationSection(),
+        loadAttendanceAndMarks(),
+        loadStudentLeaves()
+      ]);
+    }
+
+    function computeGrade(total) {
+      if (total >= 90) return 'O'; if (total >= 80) return 'A+'; if (total >= 70) return 'A';
+      if (total >= 60) return 'B+'; if (total >= 50) return 'B'; return 'F';
+    }
+
+    async function loadRegistrationSection() {
+      const windows = await api.getWindows();
+      const isRegOpen = windows.registration;
+
+      const bannerEl = document.getElementById('stu-reg-window-banner');
+      const formWrapper = document.getElementById('stu-reg-form-wrapper');
+
+      if (isRegOpen) {
+        bannerEl.innerHTML = `<div class="window-open-banner">🟢 Semester Course Registration Window is OPEN. You may register for available courses below.</div>`;
+        formWrapper.style.display = 'block';
+      } else {
+        bannerEl.innerHTML = `
+          <div class="window-closed-banner">
+            <div>
+              <strong>🔒 Course Registration Window is CLOSED</strong>
+              <div style="font-size: 0.9rem; margin-top: 4px;">The Administrator has closed semester registration. Below are your currently registered courses.</div>
+            </div>
+            <span class="badge badge-burgundy">Closed by Admin</span>
+          </div>`;
+        formWrapper.style.display = 'none';
+      }
+
+      myRegistrations = await api.getMyRegistrations() || [];
+      allCourses = await api.getCourses() || [];
+      const registeredIds = new Set(myRegistrations.map(r => r.course_id));
+
+      // Render My Registrations
+      document.getElementById('my-reg-count').textContent = `${myRegistrations.length} Courses`;
+      const myRegTbody = document.getElementById('my-registrations-tbody');
+      if (myRegistrations.length === 0) {
+        myRegTbody.innerHTML = `<tr><td colspan="4" class="text-center py-4">No courses registered for this semester yet.</td></tr>`;
+      } else {
+        myRegTbody.innerHTML = myRegistrations.map(r => {
+          const courseObj = r.courses || {};
+          return `
+            <tr>
+              <td><strong>${r.course_id}</strong></td>
+              <td>${courseObj.title || '—'}</td>
+              <td>Semester ${r.semester}</td>
+              <td><span class="badge badge-success">Registered</span></td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // Render Available Courses (If Window Open)
+      if (isRegOpen) {
+        const availTbody = document.getElementById('student-course-reg-tbody');
+        if (allCourses.length === 0) {
+          availTbody.innerHTML = `<tr><td colspan="5" class="text-center py-4">No courses found in catalog.</td></tr>`;
+        } else {
+          availTbody.innerHTML = allCourses.map(course => {
+            const alreadyReg = registeredIds.has(course.id);
+            return `
+              <tr>
+                <td><strong>${course.id}</strong></td>
+                <td>${course.title}</td>
+                <td>${course.department}</td>
+                <td>${course.credits}</td>
+                <td>
+                  ${alreadyReg
+                    ? `<span class="badge badge-success">Already Registered</span>`
+                    : `<button type="button" class="btn-primary py-1 px-3 text-sm btn-reg-course" data-course-id="${course.id}" data-sem="${course.semester}">Register</button>`
+                  }
+                </td>
+              </tr>
+            `;
+          }).join('');
+
+          availTbody.querySelectorAll('.btn-reg-course').forEach(button => {
+            button.addEventListener('click', async () => {
+              button.disabled = true; button.textContent = 'Registering...';
+              try {
+                // Pass course ID and the course's designated semester
+                await api.registerCourse(button.dataset.courseId, parseInt(button.dataset.sem));
+                await loadRegistrationSection();
+                await loadAttendanceAndMarks();
+              } catch (err) {
+                alert('Registration failed: ' + err.message);
+                button.disabled = false; button.textContent = 'Register';
+              }
+            });
+          });
+        }
+      }
+    }
+
+    async function loadAttendanceAndMarks() {
+      const tbody = document.getElementById('student-academic-tbody');
+      const attendanceRows = await api.getMyAttendance() || [];
+      const markRows = await api.getMyMarks() || [];
+
+      if (myRegistrations.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-4">No registered courses to display.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = myRegistrations.map(reg => {
+        const courseObj = reg.courses || {};
+        
+        // Process Attendance
+        const cAtt = attendanceRows.filter(a => a.course_id === reg.course_id);
+        const totalClasses = cAtt.length;
+        const presentClasses = cAtt.filter(a => a.status === 'present').length;
+        const pct = totalClasses > 0 ? ((presentClasses / totalClasses) * 100).toFixed(1) : '100.0';
+        const attBadge = parseFloat(pct) < 75 ? 'badge-burgundy' : 'badge-success';
+
+        // Process Marks (Using marks_obtained per schema)
+        const cMarks = markRows.filter(m => m.course_id === reg.course_id);
+        const intScore = Number(cMarks.find(m => m.exam === 'internal')?.marks_obtained ?? 0);
+        const midScore = Number(cMarks.find(m => m.exam === 'mid_term')?.marks_obtained ?? 0);
+        const finScore = Number(cMarks.find(m => m.exam === 'final')?.marks_obtained ?? 0);
+        const totalScore = intScore + midScore + finScore;
+
+        return `
+          <tr>
+            <td><strong>${reg.course_id}</strong></td>
+            <td>${courseObj.title || '—'}</td>
+            <td>${presentClasses} / ${totalClasses}</td>
+            <td><span class="badge ${attBadge}">${pct}%</span></td>
+            <td>${intScore}</td>
+            <td>${midScore}</td>
+            <td>${finScore}</td>
+            <td><strong>${totalScore}</strong></td>
+            <td><span class="badge badge-navy">${computeGrade(totalScore)}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Handlers
+    document.getElementById('mess-selection-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const newMess = document.getElementById('mess-choice-select').value;
+      try {
+        await api.updateMessChoice(newMess);
+        document.getElementById('stu-mess-summary').textContent = newMess;
+        const fb = document.getElementById('mess-feedback');
+        fb.textContent = '✓ Mess choice updated successfully!';
+        setTimeout(() => { fb.textContent = ''; }, 3000);
+      } catch (err) { alert('Error: ' + err.message); }
+    });
+
+    document.getElementById('student-leave-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await api.submitLeave({
+          start_date: document.getElementById('leave-start').value,
+          end_date: document.getElementById('leave-end').value,
+          reason: document.getElementById('leave-reason').value.trim()
+        });
+        e.target.reset();
+        const fb = document.getElementById('leave-feedback');
+        fb.textContent = '✓ Leave application submitted!';
+        setTimeout(() => { fb.textContent = ''; }, 3000);
+        await loadStudentLeaves();
+      } catch (err) { alert('Error: ' + err.message); }
+    });
+
+    async function loadStudentLeaves() {
+      const tbody = document.getElementById('student-leaves-tbody');
+      const leaves = await api.getMyLeaves() || [];
+      if (leaves.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="text-center py-4">No leave requests found.</td></tr>`;
+        return;
+      }
+      tbody.innerHTML = leaves.map(lv => {
+        const badge = lv.status === 'approved' ? 'badge-success' : lv.status === 'rejected' ? 'badge-burgundy' : 'badge-gold';
+        return `
+          <tr>
+            <td>${lv.start_date}</td>
+            <td>${lv.end_date}</td>
+            <td><span class="badge ${badge} uppercase">${lv.status}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    initStudentPortal();
+  </script>
+</body>
+</html>

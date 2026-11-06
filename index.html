@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XYZ College - Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Load Member C's client as an ES Module -->
+  <script type="module" src="./supabaseClient.js"></script>
+</head>
+<body>
+
+  <header class="academic-header">
+    <div class="college-logo-brand">
+      <div class="academic-crest-icon">XYZ</div>
+      <div>
+        <span>XYZ College of Engineering & Technology</span>
+        <span class="block text-xs font-normal opacity-80 text-yellow-300">Academic Portal System</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-md mx-auto my-12 px-4">
+    <div class="academic-card">
+      <div class="text-center mb-6">
+        <h1 class="font-serif text-2xl font-bold" style="color: var(--primary-navy);">Portal Login</h1>
+        <p class="text-xs text-slate-500 mt-1">Select your account role to proceed to your workspace</p>
+      </div>
+
+      <div class="tab-group flex justify-center">
+        <button id="tab-student" class="tab-btn active" onclick="switchRoleTab('student')">Student</button>
+        <button id="tab-faculty" class="tab-btn" onclick="switchRoleTab('faculty')">Faculty</button>
+        <button id="tab-admin" class="tab-btn" onclick="switchRoleTab('admin')">Admin</button>
+      </div>
+
+      <form id="loginForm">
+        <input type="hidden" id="selectedRole" value="student">
+        
+        <div id="loginError" class="hidden bg-red-100 text-red-700 p-2 rounded text-sm mb-4"></div>
+
+        <div class="form-group">
+          <label class="form-label" for="loginEmail">Academic Email</label>
+          <input type="email" id="loginEmail" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" class="form-input" required>
+        </div>
+
+        <div class="flex items-center justify-end my-4 text-xs">
+          <button type="button" onclick="document.getElementById('forgotPasswordModal').classList.remove('hidden')" class="text-amber-700 hover:underline font-semibold">Forgot Password?</button>
+        </div>
+
+        <button type="submit" class="btn-primary w-full py-2.5 mt-2" id="loginBtn">Sign In</button>
+      </form>
+    </div>
+  </main>
+
+  <div id="forgotPasswordModal" class="modal-overlay hidden">
+    <div class="modal-container">
+      <div class="flex justify-between items-center border-b pb-2 mb-4">
+        <h3 class="font-serif font-bold text-lg" style="color: var(--primary-navy);">Password Recovery</h3>
+        <button onclick="document.getElementById('forgotPasswordModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-700 text-xl font-bold">&times;</button>
+      </div>
+      
+      <form id="forgotPasswordForm">
+        <div id="resetError" class="hidden bg-red-100 text-red-700 p-2 rounded text-sm mb-4"></div>
+        <div id="resetSuccess" class="hidden bg-green-100 text-green-700 p-2 rounded text-sm mb-4"></div>
+
+        <div class="form-group">
+          <label class="form-label">Registered Institutional Email</label>
+          <input type="email" id="resetEmail" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="labelQ1">Security Question 1</label>
+          <input type="text" id="secQ1" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="labelQ2">Security Question 2</label>
+          <input type="text" id="secQ2" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">New Password</label>
+          <input type="password" id="resetNewPassword" class="form-input" minlength="6" required>
+        </div>
+        <div class="flex justify-end gap-2 mt-6">
+          <button type="button" onclick="document.getElementById('forgotPasswordModal').classList.add('hidden')" class="btn-outline">Cancel</button>
+          <button type="submit" class="btn-primary" id="resetBtn">Reset Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function switchRoleTab(role) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tab-${role}`).classList.add('active');
+      document.getElementById('selectedRole').value = role;
+    }
+
+    // Defer initialization until window load to guarantee type="module" functions are ready
+    window.addEventListener('load', () => {
+      if (typeof window.SECURITY_QUESTIONS !== 'undefined' && window.SECURITY_QUESTIONS.length >= 2) {
+        document.getElementById('labelQ1').innerText = window.SECURITY_QUESTIONS[0];
+        document.getElementById('labelQ2').innerText = window.SECURITY_QUESTIONS[1];
+      }
+
+      document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const role = document.getElementById('selectedRole').value;
+        const email = document.getElementById('loginEmail').value;
+        const pass = document.getElementById('loginPassword').value;
+        const errDiv = document.getElementById('loginError');
+        const btn = document.getElementById('loginBtn');
+        
+        errDiv.classList.add('hidden');
+        btn.innerText = 'Signing In...';
+        btn.disabled = true;
+
+        try {
+          // Calls window.login from supabaseClient.js
+          const profile = await window.login(email, pass, role);
+          if (profile) {
+            window.location.href = `${role}.html`;
+          }
+        } catch (error) {
+          errDiv.innerText = error.message;
+          errDiv.classList.remove('hidden');
+        } finally {
+          btn.innerText = 'Sign In';
+          btn.disabled = false;
+        }
+      });
+
+      document.getElementById('forgotPasswordForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('resetEmail').value;
+        const a1 = document.getElementById('secQ1').value;
+        const a2 = document.getElementById('secQ2').value;
+        const newPass = document.getElementById('resetNewPassword').value;
+        const errDiv = document.getElementById('resetError');
+        const succDiv = document.getElementById('resetSuccess');
+        const btn = document.getElementById('resetBtn');
+
+        errDiv.classList.add('hidden');
+        succDiv.classList.add('hidden');
+        btn.disabled = true;
+
+        try {
+          // Calls window.resetPasswordWithSecurity from supabaseClient.js
+          const success = await window.resetPasswordWithSecurity(email, a1, a2, newPass);
+          if (success) {
+            succDiv.innerText = "Password reset successfully. You may now log in.";
+            succDiv.classList.remove('hidden');
+            document.getElementById('forgotPasswordForm').reset();
+          } else {
+            throw new Error("Security answers incorrect or user not found.");
+          }
+        } catch (error) {
+          errDiv.innerText = error.message;
+          errDiv.classList.remove('hidden');
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
