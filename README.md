@@ -3,7 +3,7 @@
 A modern, zero-cost, full-stack Student Management System built for the web. This application serves as a lightweight Academic ERP, providing role-based portals for Students, Faculty, and Administrators.
 
 ## 🚀 Live Demo
-**[Insert Vercel Deployment Link Here]**
+**[https://xyz-college-sms.vercel.app/]**
 
 ## 🛠️ Tech Stack
 * **Frontend:** HTML5, CSS3 (Tailwind CSS via CDN), Vanilla JavaScript (ES6 Modules)
